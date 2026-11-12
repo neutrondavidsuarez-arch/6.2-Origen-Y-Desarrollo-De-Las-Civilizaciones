@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content=" width=device-width, initial-scale=1.0">
+    <title>BioLearning - Tema 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init({ publicKey: "3LjnpLaDboHWv0VPY" });
+        })();
+    </script>
+    <style>
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .iframe-container { position: relative; width: 100%; height: 75vh; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .nav-btn { transition: all 0.3s ease; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { transform: translateY(-2px); }
+        .nav-btn.active { border-color: #10b981; color: #10b981; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .dot-pulse { animation: pulse-dot 1.2s infinite; }
+        .question-img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen">
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex flex-col lg:flex-row justify-between items-center gap-4">
+                <div class="text-center lg:text-left">
+                    <h1 class="text-xl font-black text-emerald-600 tracking-tight">UNIDAD 2</h1>
+                    <p class="text-slate-500 font-bold text-xs uppercase">Tema 6.2: Origen Y Desarrollo De Las Civilizaciones</p>
+                </div>
+                
+                <nav class="flex flex-wrap justify-center gap-1 md:gap-4">
+                    <button onclick="prepQuiz('deber', this)" class="nav-btn active px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📚</span> Deber
+                    </button>
+                    <button onclick="prepQuiz('evaluacion', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📝</span> Repaso
+                    </button>
+                    <button onclick="prepQuiz('extra', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📊</span> Evaluación
+                    </button>
+                    <button onclick="showSection('pdf', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>📋</span> Pizarra
+                    </button>
+                    <button onclick="showSection('video', this)" class="nav-btn px-3 py-2 font-bold text-slate-700 flex items-center gap-2">
+                        <span>🎥</span> Video
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+    <main id="app" class="max-w-5xl mx-auto p-6"></main>
+    <script>
+        const DRIVE_PDF_URL = "https://drive.google.com/file/d/1ltoAo5lypjX5a3NfWON-G-5qbT9i-a0g/view?usp=sharing";
+        const DRIVE_VIDEO_URL = "https://drive.google.com/file/d/1d9RTXq-_QY--0i7mdIjKBc0jcw-AFdbi/view?usp=sharing";
+
+
+        // PRINCIPAL (Deber + Repaso) – 50 preguntas
+        const quizData = [
+         { question: 'Civilizaciones fluviales <br> Indique si los siguientes enunciados son Verdaderos (V) o Falsos (F): <br> 1.Las primeras civilizaciones surgieron cerca de cuencas hídricas. <br> 2.Los templos en Mesopotamia se llamaban zigurats. <br> 3.Los egipcios no dependían de las crecidas del Nilo. <br> 4.Los griegos construyeron pirámides como tumbas de faraones.', options: ['V – V – F – F', 'V – F – V – V', 'V – V – V – F', 'F – V – F – V'], answer: 'V – V – F – F', explanation: 'Respuesta correcta: A) V – V – F – F <br> V – Las primeras civilizaciones (Mesopotamia, Egipto, valle del Indo, China) surgieron en cuencas fluviales por el agua y la fertilidad del suelo. <br> V – Los templos mesopotámicos se llamaban zigurats (torres escalonadas). <br> F – Los egipcios dependían totalmente de las crecidas anuales del Nilo para la agricultura. <br> F – Las pirámides como tumbas de faraones son egipcias, no griegas.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Mesopotamia <br> Indique V o F: <br> 1.La escritura cuneiforme se originó en Mesopotamia. <br> 2.Los sumerios inventaron el Poema de Gilgamesh. <br> 3.La rueda fue un invento egipcio. <br> 4.Mesopotamia significa “entre ríos”.', options: ['V – V – F – V', 'F – V – V – F', 'V – F – V – V', 'V – V – V – V'], answer: 'V – V – F – V', explanation: 'Respuesta correcta: A) V – V – F – V <br> V – La escritura cuneiforme nació en Mesopotamia (sumerios). <br> V – El Poema de Gilgamesh es una obra sumeria (mesopotámica). <br> F – La rueda fue inventada por los sumerios en Mesopotamia, no por los egipcios. <br> V – Mesopotamia significa “entre ríos” (Tigris y Éufrates).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Escritura – Mesopotamia <br> “Cuneiforme : Mesopotamia :: Jeroglíficos : ____”',options: ['Grecia', 'Egipto', 'Roma', 'Fenicia'], answer: 'Egipto', explanation: 'Respuesta correcta: B) Egipto <br> La analogía es correcta: cuneiforme = Mesopotamia; jeroglíficos = Egipto.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Sociedad Griega <br> “Ciudadanos : Atenas :: Patricios : ____”', options: ['Egipto', 'Roma', 'Mesopotamia', 'China'], answer: 'Roma', explanation: 'Respuesta correcta: B) Roma <br> Ciudadanos eran la clase privilegiada en Atenas; patricios eran la clase aristocrática en Roma.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Religión mesopotámica <br> Seleccione el término que no corresponde:', options: ['Anu', 'Enlil', 'Ra', 'Enki'], answer: 'Ra', explanation: 'Respuesta correcta: C) Ra <br> Anu, Enlil y Enki son dioses mesopotámicos. Ra es un dios egipcio.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Aportes de Grecia <br> Seleccione el término que no corresponde:', options: ['Democracia directa', 'Olimpiadas', 'Código de Hammurabi', 'Filosofía'], answer: 'Código de Hammurabi', explanation: 'Respuesta correcta: C) Código de Hammurabi <br> Democracia directa, Olimpiadas y filosofía son aportes griegos. El Código de Hammurabi es mesopotámico (babilonio).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Egipto <br> El faraón _______ unificó el Alto y Bajo Egipto, estableciendo una monarquía _______.', options: ['Hammurabi – democrática', 'Menes/Narmer – teocrática', 'Tutankamón – militarista', 'Alejandro – absolutista'], answer: 'Menes/Narmer – teocrática', explanation: 'Respuesta correcta: B) Menes/Narmer – teocrática <br> Menes (o Narmer) unificó el Alto y Bajo Egipto. El gobierno era teocrático (el faraón era considerado divino).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia <br> La polis de _______ se caracterizó por su sistema militarista, mientras que _______ fue cuna de la democracia.', options: ['Roma – Tebas', 'Esparta – Atenas', 'Corinto – Micena', 'Delfos – Creta'], answer: 'Esparta – Atenas', explanation: 'Respuesta correcta: B) Esparta – Atenas <br> Esparta era militarista y oligárquica; Atenas desarrolló la democracia.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Escrituras antiguas <br> Relacione correctamente: <br> <img src="https://drive.google.com/thumbnail?id=1TNz0NWhMkSg4Jj5XsedLro48hr-XmFYFEsq047vYVCE&sz=w800-h600" width="430" height="150" alt="Descripción">', options: ['1c – 2b – 3a – 4d', '1b – 2c – 3d – 4a', '1d – 2a – 3c – 4b', '1a – 2d – 3b – 4c'], answer: '1c – 2b – 3a – 4d', explanation: 'Respuesta correcta: A) 1c – 2b – 3a – 4d <br> Mesopotamia &rarr;  cuneiforme <br> Egipto &rarr;  jeroglíficos <br> Fenicia &rarr;  alfabeto fonético <br> China &rarr;  ideogramas.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Organización social romana <br> Relacione correctamente: <br> <img src="https://drive.google.com/thumbnail?id=13Y07_Ws7QmbgJMwt6zGk5-jok109kg_Cwfxm06WhN7U&sz=w800-h600" width="430" height="150" alt="Descripción">', options: ['1a – 2b – 3c – 4d', '1b – 2a – 3d – 4c', '1d – 2c – 3a – 4b', '1a – 2d – 3b – 4c'], answer: '1a – 2b – 3c – 4d', explanation: 'Respuesta correcta: A) 1a – 2b – 3c – 4d <br> Patricios &rarr; aristocracia <br> Plebeyos &rarr; hombres libres sin privilegios <br> Libertos &rarr; antiguos esclavos liberados <br> Esclavos &rarr; prisioneros de guerra sin derechos.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Etapas de Egipto <br> Ordene cronológicamente las siguientes etapas de la civilización egipcia: <br> 1.Imperio Nuevo <br> 2.Periodo Arcaico <br> 3.Imperio Antiguo <br> 4.Imperio Medio', options: ['2 – 3 – 4 – 1', '3 – 2 – 1 – 4', '4 – 3 – 2 – 1', '2 – 4 – 3 – 1'], answer: '2 – 3 – 4 – 1', explanation: 'Respuesta correcta: A) 2 – 3 – 4 – 1 <br> Orden cronológico: Periodo Arcaico &rarr; Imperio Antiguo &rarr; Imperio Medio &rarr; Imperio Nuevo.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Evolución política de Roma <br> Ordene de acuerdo con la secuencia histórica: <br> 1.República <br> 2.Imperio <br> 3.Monarquía', options: ['1 – 2 – 3', '3 – 1 – 2', '2 – 3 – 1', '3 – 2 – 1'], answer: '3 – 1 – 2', explanation: 'Respuesta correcta: B) 3 – 1 – 2 <br> Orden histórico de Roma: Monarquía &rarr; República &rarr; Imperio.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Mesopotamia <br> "Mesopotamia desarrolló un sistema numérico sexagesimal que permitió medir el tiempo, calcular ángulos y establecer un calendario de 12 meses." <br> Con base en el texto, ¿qué aportes matemáticos siguen vigentes hoy?', options: ['El número cero y el álgebra moderna', 'Los números romanos y el ábaco', 'Los minutos, segundos y grados de una circunferencia', 'El cálculo diferencial y la estadística'], answer: 'Los minutos, segundos y grados de una circunferencia', explanation: 'Respuesta correcta: C) Los minutos, segundos y grados de una circunferencia <br> El sistema sexagesimal mesopotámico (base 60) es el origen de minutos, segundos y los 360 grados del círculo.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia <br> "En Atenas, solo los varones mayores de edad, nacidos de padre y madre atenienses, podían participar en la vida política." <br> De acuerdo con el texto, ¿qué característica tenía la democracia ateniense?', options: ['Era universal e inclusiva', 'Estaba limitada a un grupo reducido de ciudadanos', 'Permitía la participación de mujeres y esclavos', 'No existían requisitos de nacimiento'], answer: 'Estaba limitada a un grupo reducido de ciudadanos', explanation: 'Respuesta correcta: B) Estaba limitada a un grupo reducido de ciudadanos <br> Solo los varones adultos nacidos de padre y madre atenienses podían participar. Mujeres, esclavos y extranjeros quedaban excluidos.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Invento egipcio <br> ¿Cuál de los siguientes fue un aporte de la civilización egipcia?',options: ['Código de Hammurabi', 'Jeroglíficos', 'Democracia directa', 'Alfabeto fonético'], answer: 'Jeroglíficos', explanation: 'Respuesta correcta: B) Jeroglíficos <br> Los jeroglíficos son el sistema de escritura egipcio. Las otras opciones corresponden a otras civilizaciones.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Civilización mediterránea <br> La ciudad de Cartago fue fundada por los:', options: ['Fenicios', 'Egipcios', 'Romanos', 'Persas'], answer: 'Fenicios', explanation: 'Respuesta correcta: A) Fenicios <br> Cartago fue una colonia fenicia fundada por comerciantes de Tiro.', multi: 'OFF', maxSelect: 1 },
+           { question: 'China antigua <br> Seleccione dos características de la economía china: <br> 1.Agricultura de arroz y trigo <br> 2.Uso del alfabeto latino <br> 3.Comercio mediante trueque y monedas <br> 4.Construcción de pirámides funerarias <br> 5.Introducción del papel moneda <br> 6.Democracia directa', options: ['1 y 3', '2 y 5', '1 y 4', '3 y 6'], answer: '1 y 3', explanation: 'Respuesta correcta: A) 1 y 3 <br> Características correctas: agricultura de arroz y trigo, y comercio con trueque y monedas. El papel moneda se introdujo más tarde (Song), pero 1 y 3 son las más claras entre las opciones.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Sociedad egipcia <br> Elija dos grupos que formaban parte de la clase privilegiada: <br> 1.Esclavos <br> 2.Nobles <br> 3.Comerciantes <br> 4.Sacerdotes <br> 5.Campesinos <br> 6.Soldados', options: ['2 y 4', '1 y 3', '5 y 6', '3 y 6'], answer: '2 y 4', explanation: 'Respuesta correcta: A) 2 y 4 <br> Nobles y sacerdotes formaban parte de la clase privilegiada junto al faraón. Esclavos, campesinos y comerciantes no.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Cultura griega <br> Seleccione tres aportes de la cultura griega: <br> 1.Filosofía <br> 2.Derecho romano <br> 3.Democracia directa <br> 4.Teatro <br> 5.Jeroglíficos <br> 6.Olimpiadas <br> 7.Código de Hammurabi <br> 8.Pirámides', options: ['1, 3 y 6', '2, 4 y 5', '3, 6 y 7', '1, 4 y 8'], answer: '1, 3 y 6', explanation: 'Respuesta correcta: A) 1, 3 y 6 <br> Aportes griegos: filosofía, democracia directa y Olimpiadas. El teatro también es griego, pero la opción A es la más precisa entre las dadas.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Civilizaciones mesopotámicas <br> Seleccione tres pueblos de Mesopotamia: <br> 1.Sumerios <br> 2.Persas <br> 3.Acadios <br> 4.Babilonios <br> 5.Egipcios <br> 6.Asirios <br> 7.Fenicios <br> 8.Cartagineses', options: ['1, 3 y 4', '2, 5 y 7', '1, 6 y 8', '2, 4 y 6'], answer: '1, 3 y 4', explanation: 'Respuesta correcta: A) 1, 3 y 4 <br> Sumerios, acadios y babilonios son pueblos de Mesopotamia. Los asirios también, pero la opción A es correcta.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Mesopotamia – aportes <br> ¿Cuál fue la principal razón por la que surgió la escritura cuneiforme?', options: ['Embellecer templos y murales', 'Necesidad de registrar actividades económicas', 'Traducir textos religiosos de Egipto', 'Comunicación entre soldados'], answer: 'Necesidad de registrar actividades económicas', explanation: 'Respuesta correcta: B) Necesidad de registrar actividades económicas <br> La escritura cuneiforme surgió para llevar cuentas de bienes, impuestos y transacciones en los templos.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Egipto – religión <br> La idea del Maat en la religión egipcia hacía referencia a:', options: ['Una vida correcta para mantener el equilibrio', 'El castigo eterno en el más allá', 'La unión de las ciudades-Estado', 'El triunfo de los dioses griegos'], answer: 'Una vida correcta para mantener el equilibrio', explanation: 'Respuesta correcta: A) Una vida correcta para mantener el equilibrio <br> Maat representaba el orden, la justicia, la verdad y el equilibrio cósmico.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia – pensamiento <br> El paso del pensamiento mítico al pensamiento filosófico en Grecia se dio principalmente por:', options: ['Crisis sociales y contacto con otras culturas', 'La imposición del cristianismo', 'La llegada de Alejandro Magno', 'La influencia de Roma'], answer: 'Crisis sociales y contacto con otras culturas', explanation: 'Respuesta correcta: A) Crisis sociales y contacto con otras culturas <br> El paso del mito a la filosofía racional se dio por crisis políticas y el contacto cultural en el Mediterráneo.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Roma <br> Indique V o F: <br> 1.La monarquía romana estuvo gobernada por siete reyes. <br> 2.El Senado fue la máxima institución de la República. <br> 3.El Imperio romano se divide en Alto y Bajo Imperio. <br> 4.El emperador Augusto fue el último gobernante de Roma.', options: ['V – V – V – F', 'V – F – V – V', 'F – V – V – F', 'V – V – F – V'], answer: 'V – V – V – F', explanation: 'Respuesta correcta: A) V – V – V – F <br> V (siete reyes legendarios). <br> V (el Senado era la institución central de la República). <br> V (se divide en Alto y Bajo Imperio). <br> F (Augusto fue el primer emperador, no el último).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia <br> 1.La polis era la unidad política de Grecia. <br> 2.Esparta se caracterizó por su democracia participativa. <br> 3.Atenas excluía a mujeres y esclavos de la ciudadanía. <br> 4.Sócrates, Platón y Aristóteles fueron filósofos griegos.', options: ['V – F – V – V', 'V – V – F – F', 'F – V – V – F', 'V – F – F – V'], answer: 'V – F – V – V', explanation: 'Respuesta correcta: A) V – F – V – V <br> V. <br> F (Esparta era oligárquica y militarista, no democrática). <br> V. <br> V.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Egipto : Pirámides :: Mesopotamia : ____ ', options: ['Coliseo', 'Zigurats', 'Acrópolis', 'Murallas chinas'], answer: 'Zigurats', explanation: 'Respuesta correcta: B) Zigurats <br> Egipto : Pirámides :: Mesopotamia : Zigurats.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Alejandro Magno : Grecia :: Nabucodonosor II : ____', options: ['Fenicia', 'Cartago', 'Babilonia', 'Roma'], answer: 'Babilonia', explanation: 'Respuesta correcta: C) Babilonia <br> Alejandro Magno es a Grecia como Nabucodonosor II es a Babilonia.', multi: 'OFF', maxSelect: 1 },
+           { question: 'China antigua <br> Seleccione el término que no corresponde:', options: ['Confucianismo', 'Taoísmo', 'Budismo', 'Cristianismo'], answer: 'Cristianismo', explanation: 'Respuesta correcta: D) Cristianismo <br> Confucianismo, taoísmo y budismo son religiones/filosofías de China antigua. El cristianismo no.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Roma – arquitectura <br> Seleccione el término que no corresponde:', options: ['Arco', 'Bóveda', 'Cúpula', 'Zigurat'], answer: 'Zigurat', explanation: 'Respuesta correcta: D) Zigurat <br> Arco, bóveda y cúpula son elementos de la arquitectura romana. El zigurat es mesopotámico.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Fenicios <br> Complete el texto. <br> Los fenicios fueron grandes comerciantes y su mayor aporte fue el desarrollo de un ______ que dio origen a los alfabetos ______.', options: ['Códice – griegos', 'Alfabeto – latinos', 'Jeroglífico – egipcios', 'Cuneiforme - mesopotámicos'], answer: 'Alfabeto – latinos', explanation: 'Respuesta correcta: B) Alfabeto – latinos <br> Los fenicios desarrollaron un alfabeto fonético que dio origen a los alfabetos griego y latino.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Civilizaciones y sus inventos <br> Relacione cada civilización con uno de sus aportes: <br> <img src="https://drive.google.com/thumbnail?id=1J2eR4TUKQvGT9c6lAy2GhxvgUJcCXqGZg1xtN_YXTdA&sz=w800-h600" width="430" height="150" alt="Descripción">', options: ['1c – 2d – 3a – 4b', '1d – 2c – 3b – 4a', '1a – 2b – 3c – 4d', '1c – 2a – 3d – 4b'], answer: '1c – 2d – 3a – 4b', explanation: 'Respuesta correcta: A) 1c – 2d – 3a – 4b <br> Egipto &rarr; jeroglíficos <br> Mesopotamia &rarr; escritura cuneiforme <br> Grecia &rarr; democracia directa <br> Roma &rarr; derecho romano.', multi: 'OFF', maxSelect: 1 },
+           { question: 'China y sus inventos <br> Relacione cada invento con la civilización china: <br> <img src="https://drive.google.com/thumbnail?id=17XLNgIYDbZWX_Fcz06LIJ_TD92nRlQ1Gamxsmb3T-KM&sz=w800-h600" width="430" height="150" alt="Descripción">', options: ['1a – 2d – 3b – 4c', '1b – 2c – 3a – 4d', '1d – 2a – 3c – 4b', '1c – 2b – 3d – 4a'], answer: '1a – 2d – 3b – 4c', explanation: 'Respuesta correcta: A) 1a – 2d – 3b – 4c <br> Cai Lun &rarr; papel <br> Brújula &rarr; navegación <br> Pólvora &rarr; armamento y fuegos artificiales <br> Imprenta &rarr; reproducción de textos.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia – cronología <br> Ordene los siguientes periodos de la civilización griega: <br> 1.  Período helenístico <br> 2.  Periodo clásico <br> 3.  Periodo arcaico <br> 4.  Periodo oscuro', options: ['4 – 3 – 2 – 1', '3 – 2 – 1 – 4', '2 – 3 – 4 – 1', '4 – 2 – 3 – 1'], answer: '4 – 3 – 2 – 1', explanation: 'Respuesta correcta: A) 4 – 3 – 2 – 1 <br> Orden: Periodo oscuro &rarr; Periodo arcaico &rarr; Periodo clásico &rarr; Periodo helenístico.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Dinastías chinas <br> Ordene cronológicamente: <br> 1.  Dinastía Han <br> 2.  Dinastía Qin <br> 3.  Dinastía Tang <br> 4.  Dinastía Song', options: ['2 – 1 – 3 – 4', '1 – 2 – 4 – 3', '4 – 2 – 1 – 3', '3 – 4 – 2 – 1'], answer: '2 – 1 – 3 – 4', explanation: 'Respuesta correcta: A) 2 – 1 – 3 – 4 <br> Orden: Dinastía Qin &rarr; Han &rarr; Tang &rarr; Song.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Roma – expansión <br> Uno de los factores que favoreció la expansión romana fue:', options: ['La debilidad de Egipto', 'Su ejército organizado y disciplinado', 'El comercio fenicio', 'La unificación griega'], answer: 'Su ejército organizado y disciplinado', explanation: 'Respuesta correcta: B) Su ejército organizado y disciplinado <br> La legión romana, su disciplina y organización militar fueron factores clave de la expansión.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia – aportes <br> ¿Cuál fue el aporte de Hipócrates a la civilización griega?', options: ['Desarrollo de la geometría', 'Fundador de la medicina racional', 'Poeta épico de La Odisea', 'Legislador en Atenas'], answer: 'Fundador de la medicina racional', explanation: 'Respuesta correcta: B) Fundador de la medicina racional <br> Hipócrates es considerado el padre de la medicina occidental y del método clínico racional.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Egipto – economía <br> Seleccione dos características económicas de Egipto: <br> 1.Agricultura basada en crecidas del Nilo <br> 2.Uso del trueque y monedas <br> 3.Producción de papiro y tinta <br> 4.Desarrollo de la democracia', options: ['1 y 3', '2 y 4', '3 y 4', '1 y 4'], answer: '1 y 3', explanation: 'Respuesta correcta: A) 1 y 3 <br> Agricultura basada en las crecidas del Nilo y producción de papiro y tinta son características egipcias.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Mesopotamia – organización social <br> Seleccione dos características de la sociedad mesopotámica: <br> 1.El rey y su familia estaban en la cúspide social <br> 2.Los esclavos eran prisioneros de guerra <br> 3.La nobleza era inexistente <br> 4.Los artesanos no tenían relevancia', options: ['1 y 2', '3 y 4', '2 y 4', '1 y 3'], answer: '1 y 2', explanation: 'Respuesta correcta: A) 1 y 2 <br> El rey y su familia estaban en la cúspide, y los esclavos eran principalmente prisioneros de guerra.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Roma – legados <br> Seleccione tres aportes de Roma: <br> 1.Senado <br> 2.Papiro <br> 3.Derecho romano <br> 4.Arco y bóveda <br> 5.Filosofía de Platón <br> 6.Coliseo <br> 7.Democracia directa <br> 8.Pirámides', options: ['1, 3 y 4', '2, 5 y 7', '4, 6 y 8', '1, 7 y 2'], answer: '1, 3 y 4', explanation: 'Respuesta correcta: A) 1, 3 y 4 <br> Aportes romanos claros: Senado, derecho romano, arco y bóveda (y Coliseo). La opción A es la más precisa.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia – cultura <br> Seleccione tres elementos culturales griegos: <br> 1.Teatro <br> 2.Jeroglíficos <br> 3.Olimpiadas <br> 4.Zigurats <br> 5.Mitología olímpica <br> 6.Papiros <br> 7.Código de Hammurabi <br> 8.Acrópolis', options: ['1, 3 y 5', '2, 4 y 7', '5, 6 y 8', '1, 6 y 7'], answer: '1, 3 y 5', explanation: 'Respuesta correcta: A) 1, 3 y 5 <br> Teatro, Olimpiadas y mitología olímpica son elementos culturales griegos. La Acrópolis también, pero A es correcta.', multi: 'OFF', maxSelect: 1 },
+           { question: 'China – organización social <br> 1.El emperador era considerado descendiente de los dioses. <br> 2.Los campesinos constituían la mayoría de la población. <br> 3. Los esclavos eran la clase dominante. <br> 4.Los mandarines eran burócratas y administradores.', options: ['V – V – F – V', 'V – F – V – F', 'F – V – F – V', 'V – V – V – F'], answer: 'V – V – F – V', explanation: 'Respuesta correcta: A) V – V – F – V <br> V (Mandato del Cielo). <br> V. <br> F (los esclavos no eran la clase dominante). <br> V (los mandarines eran funcionarios cultos).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Roma – economía <br> 1.El comercio fue favorecido por el Mediterráneo. <br> 2.Los esclavos fueron esenciales en la producción. <br> 3.La agricultura era la base económica. <br> 4.Roma introdujo el papel moneda en Europa.', options: ['V – V – V – F', 'V – F – V – V', 'F – V – V – V', 'V – V – F – V'], answer: 'V – V – V – F', explanation: 'Respuesta correcta: A) V – V – V – F <br> 1-3 son verdaderos. 4 es falso: el papel moneda lo inventaron los chinos; Roma no lo introdujo en Europa.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Mesopotamia : Hammurabi :: Grecia : ____', options: ['Solón', 'Ramsés II', 'Julio César', 'Qin Shi Huang'], answer: 'Solón', explanation: 'Respuesta correcta: A) Solón <br> Hammurabi es el gran legislador de Mesopotamia; Solón es el gran legislador de Atenas.', multi: 'OFF', maxSelect: 1 },
+           { question: 'China : Gran Muralla :: Egipto : ____', options: ['Coliseo', 'Zigurats', 'Pirámides', 'Acrópolis'], answer: 'Pirámides', explanation: 'Respuesta correcta: C) Pirámides <br> China : Gran Muralla :: Egipto : Pirámides.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Civilizaciones mediterráneas <br> Identifique el término que no pertenece:', options: ['Micénica', 'Minoica', 'Cartaginesa', 'Maya'], answer: 'Maya', explanation: 'Respuesta correcta: D) Maya <br> Micénica, minoica y cartaginesa son civilizaciones del Mediterráneo. La maya es americana.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Religión egipcia <br> Todos pertenecen al tema mencionado, excepto:', options: ['Osiris', 'Isis', 'Zeus', 'Ra'], answer: 'Zeus', explanation: 'Respuesta correcta: C) Zeus <br> Osiris, Isis y Ra son dioses egipcios. Zeus es griego.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Roma <br> El período de la ______ se caracterizó por la estabilidad y la llamada ______ romana.', options: ['República – igualdad', 'Imperio – pax', 'Monarquía – guerra', 'República – paz'], answer: 'Imperio – pax', explanation: 'Respuesta correcta: B) Imperio – pax <br> El periodo del Imperio se caracterizó por la Pax Romana (paz y estabilidad relativa).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Grecia <br> Los filósofos Sócrates, Platón y Aristóteles sentaron las bases del ______ y establecieron el paso del pensamiento ______ al racional.', options: ['Derecho – jurídico', 'Teatro – artístico', 'Saber – práctico', 'Conocimiento – mítico'], answer: 'Conocimiento – mítico', explanation: 'Respuesta correcta: D) Conocimiento – mítico <br> Sentaron las bases del conocimiento y del paso del pensamiento mítico al racional.', multi: 'OFF', maxSelect: 1 },
+           { question: 'Civilización Cartaginesa <br> Cartago fue destruida en el año 146 a.C. durante las:', options: ['Guerras Médicas', 'Guerras Púnicas', 'Guerras del Peloponeso', 'Cruzadas'], answer: 'Guerras Púnicas', explanation: 'Respuesta correcta: B) Guerras Púnicas <br> Cartago fue destruida por Roma en la Tercera Guerra Púnica (146 a.C.).', multi: 'OFF', maxSelect: 1 },
+           { question: 'Civilización China <br> El mausoleo del emperador Qin Shi Huang es famoso por:', options: ['Sus jeroglíficos', 'Sus jardines colgantes', 'Los Guerreros de Terracota', 'Sus coliseos'], answer: 'Los Guerreros de Terracota', explanation: 'Respuesta correcta: C) Los Guerreros de Terracota <br> El mausoleo de Qin Shi Huang es famoso por el ejército de terracota.', multi: 'OFF', maxSelect: 1 },
+        ];
+
+
+        // Evaluación – 16 preguntas
+        const quizDataExtra = [
+            { question: '¿Cuál es considerado el “berceaux”  o germen de la civilización, donde se desarrollaron las primeras ciudades?', options: ['Egipto', 'Mesopotamia', 'Valle del Indo', 'China'], answer: 'Mesopotamia', explanation: 'Mesopotamia, entre los ríos Tigris y Éufrates, es reconocida como la cuna de la civilización debido al surgimiento de las primeras ciudades y sistemas de escritura.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Relaciona las siguientes civilizaciones con sus características destacadas: <br> <img src="https://drive.google.com/thumbnail?id=1i1GmxXOg3ck4ZW5qXNiFA3zohAKQkF0L4ETIbVFodco&sz=w800-h600" width="500" height="150" alt="Descripción">', options: ['1d; 2b; 3b; 4c', '1a; 2b; 3c; 4d', '1b; 2c; 3d; 4a', '1c; 2d; 3a; 4b'], answer: '1b; 2c; 3d; 4a', explanation: '1 b: Las pirámides son un símbolo icónico de la arquitectura y cultura del antiguo Egipto. <br> 2 c: China es conocida por sus innovaciones, incluyendo el papel y la pólvora, que tuvieron un impacto significativo en la historia. <br> 3 d: El sistema de castas es una característica fundamental de la sociedad india que ha influido en su estructura social a lo largo de los siglos. <br> 4 a: Mesopotamia es famosa por ser la cuna de la escritura cuneiforme, una de las primeras formas de escritura en la historia.', multi: 'OFF', maxSelect: 1 },
+            { question: 'La escritura cuneiforme fue desarrollada por los __________ alrededor del 3200 a.C.', options: ['egipcios', 'sumerios', 'mesopotámicos', 'chinos'], answer: 'sumerios', explanation: 'Los sumerios de Mesopotamia fueron los primeros en desarrollar la escritura cuneiforme, una de las formas más antiguas de escritura.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Qué río era fundamental para la civilización egipcia?', options: ['Amazonas', 'Yangtsé', 'Tigris', 'Nilo'], answer: 'Nilo', explanation: 'El río Nilo era esencial para la agricultura y la vida cotidiana en Egipto, permitiendo la irrigación de las tierras fértiles a su alrededor.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Cuál de los siguientes elementos es característico de la civilización del Valle del Indo?', options: ['Escritura jeroglífica', 'Ciudades planificadas como Harappa y Mohenjo-Daro', 'La construcción de templos en la cima de montañas', 'Un sistema de castas'], answer: 'Ciudades planificadas como Harappa y Mohenjo-Daro', explanation: 'La civilización del Valle del Indo es famosa por sus ciudades bien planificadas, que mostraban un avanzado sistema de drenaje y urbanismo.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Cuál de los siguientes filósofos es conocido por ser el fundador del confucianismo?', options: ['Laozi', 'Confucio', 'Sun Tzu', 'Zhuangzi'], answer: 'Confucio', explanation: 'Confucio fue un filósofo chino cuyas enseñanzas sobre la ética, la política y la moral han influido profundamente en la cultura china.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Cuáles de las siguientes afirmaciones son correctas sobre Mesopotamia? <br> I. Era conocida por su agricultura avanzada. <br> II. No tuvo influencia en la religión de otras culturas.', options: ['Solo I es correcta.', 'Solo II es correcta.', 'Ambas son correctas.', 'Ninguna es correcta.'], answer: 'Solo I es correcta.', explanation: 'I. Era conocida por su agricultura avanzada. Esta afirmación es correcta. Mesopotamia, situada entre los ríos Tigris y Éufrates, es famosa por su agricultura avanzada, que incluía el riego y el cultivo de cereales, lo que permitió el desarrollo de ciudades y civilizaciones complejas. <br> II. No tuvo influencia en la religión de otras culturas. Esta afirmación es incorrecta. Mesopotamia tuvo un impacto significativo en las religiones de otras culturas, especialmente en las de los pueblos vecinos y en las tradiciones hebreas, ya que muchas ideas religiosas y mitológicas se originaron en esta región.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Cuál es el sistema político que predominó en la antigua Egipto?', options: ['Democracia', 'Monarquía absoluta', 'Oligarquía', 'República'], answer: 'Monarquía absoluta', explanation: 'En Egipto, los faraones eran considerados dioses y gobernaban como monarcas absolutos, con autoridad sobre todos los aspectos de la vida.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Qué innovaciones importantes se atribuyen a la antigua China?', options: ['Rueda y metalurgia', 'Agricultura de riego', 'Papel, pólvora y brújula', 'Sistema de escritura jeroglífica'], answer: 'Papel, pólvora y brújula', explanation: 'Papel: La invención del papel se atribuye a los antiguos chinos, y es considerado uno de los avances más significativos en la historia de la escritura y la comunicación. <br> Pólvora: La pólvora fue desarrollada en China durante la dinastía Tang y tuvo un gran impacto en la guerra y la pirotecnia. <br> Brújula: La brújula, que se utilizó inicialmente para la adivinación, se convirtió en un instrumento crucial para la navegación marítima, facilitando la exploración y el comercio.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Ordena los siguientes eventos de la civilización india: <br> 1) Fundación de la ciudad de Harappa. <br> 2) Llegada de los arios al subcontinente. <br> 3) Desarrollo del hinduismo. <br> 4) Formación del Imperio Maurya.', options: ['2, 1, 3, 4', '1, 2, 3, 4', '3, 4, 1, 2', '1, 3, 4, 2'], answer: '2, 1, 3, 4', explanation: 'Llegada de los arios al subcontinente (2): Se considera que los arios, un grupo indoeuropeo, llegaron al subcontinente indio alrededor del 1500 a.C., lo que marcó el inicio de un periodo significativo en la historia de India. <br> Fundación de la ciudad de Harappa (1): La civilización del Valle del Indo, que incluía ciudades como Harappa y Mohenjo-Daro, floreció aproximadamente entre 2600 y 1900 a.C. Por lo tanto, la llegada de los arios es anterior a la fundación de estas ciudades. <br> Desarrollo del hinduismo (3): Este desarrollo se dio principalmente durante el período védico, que siguió a la llegada de los arios, cuando se comenzaron a escribir los Vedas y se consolidaron las creencias que formarían la base del hinduismo. <br> Formación del Imperio Maurya (4): El Imperio Maurya se estableció  en el siglo IV a.C., bajo el liderazgo  de Chandragupta Maurya, y es uno  de los primeros grandes imperios de  la India antigua.', multi: 'OFF', maxSelect: 1 },
+            { question: '	¿Qué era el "Código de Hammurabi"?', options: ['Un tratado de paz entre ciudades-estado.', 'Un conjunto de leyes escrito.', 'Un libro sagrado.', 'Un sistema de escritura.'], answer: 'Un conjunto de leyes escrito.', explanation: 'El Código de Hammurabi es uno de los primeros conjuntos de leyes escritas, que proporcionaba un marco legal para la sociedad babilónica.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Cuál es la base del sistema de castas en la civilización india?', options: ['La herencia familiar y ocupacional.', 'La riqueza acumulada.', 'El nivel educativo.', 'Las creencias religiosas.'], answer: 'La herencia familiar y ocupacional.', explanation: 'El sistema de castas se basa en la herencia de la ocupación y la posición social, lo que determina el lugar de una persona en la sociedad.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Qué importancia tuvo la invención de la escritura en las civilizaciones antiguas?', options: ['Permitió el desarrollo del comercio.', 'Facilitó la transmisión de conocimiento.', 'Ayudó a establecer sistemas legales.', 'Todas las anteriores.'], answer: 'Todas las anteriores.', explanation: 'Permitió el desarrollo del comercio: La escritura facilitó la creación de registros de transacciones, contratos y cuentas, lo que hizo el comercio más eficiente y confiable. <br> Facilitó la transmisión de conocimiento: La escritura permitió la preservación y transmisión de información, ideas y conocimientos a través de generaciones, lo que fue crucial para el desarrollo cultural y científico. <br> Ayudó a establecer sistemas legales: Con la escritura, las leyes pudieron ser codificadas y registradas, lo que proporcionó una base para la justicia y el orden en las sociedades.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Qué deidad era considerada la diosa de la fertilidad y el hogar en la mitología egipcia?', options: ['Isis', 'Osiris', 'Ra', 'Horus'], answer: 'Isis', explanation: 'Isis era considerada la diosa de la fertilidad, la maternidad y el hogar en la mitología egipcia. También era asociada con la magia y la curación, y era venerada como una de las diosas más importantes del panteón egipcio.', multi: 'OFF', maxSelect: 1 },
+            { question: '¿Qué ciudad es conocida como la "ciudad prohibida" de China?', options: ['Pekín', 'Shanghái', 'Xi’an', 'Hangzhou'], answer: 'Pekín', explanation: 'La Ciudad Prohibida en Pekín fue el palacio imperial de las dinastías Ming y Qing, y solo los emperadores y sus familias podían entrar.', multi: 'OFF', maxSelect: 1 },
+            { question: 'Ordena las siguientes dinastías chinas desde la más antigua hasta la más reciente: <br> 1) Dinastía Han <br> 2) Dinastía Shang <br> 3) Dinastía Zhou <br> 4) Dinastía Tang', options: ['3, 2, 1, 4', '2, 1, 3, 4', '2, 3, 1, 4', '3, 1, 4, 2'], answer: '2, 3, 1, 4', explanation: 'Dinastía Shang (c. 1600-1046 a.C.) <br> Dinastía Zhou (c. 1046-256 a.C.) <br> Dinastía Han (206 a.C.-220 d.C.) <br> Dinastía Tang (618-907 d.C.).', multi: 'OFF', maxSelect: 1 },
+        ];
+
+
+        // ========== CONFIGURACIÓN DEL TEMPORIZADOR DE EVALUACIÓN ==========
+        // Tiempo total: 16 minutos = 960 segundos (igual que Tema 1)
+        const EVAL_TIMER_SECONDS = 960;
+
+
+        // Tres fases de color según el tiempo RESTANTE (en segundos).
+        const EVAL_TIMER_PHASES = [
+            { minSeconds: 480, colorClass: 'text-emerald-600 bg-emerald-50 border-emerald-300' }, // ≥ 8 min → verde
+            { minSeconds: 60,  colorClass: 'text-amber-600 bg-amber-50 border-amber-300' },     // ≥ 1 min  → ámbar
+            { minSeconds: 0,   colorClass: 'text-red-600 bg-red-50 border-red-300' }            // < 1 min  → rojo
+        ];
+        // ==================================================================
+
+
+        let state = {
+            currentMode: 'deber',
+            view: 'quiz_home',
+            studentName: '',
+            studentEmail: '',
+            activeQuestions: [],
+            currentQuestion: 0,
+            score: 0,
+            selectedAnswer: null,
+            isAnswerCorrect: null,
+            emailStatus: null,
+            emailAnalysis: null,
+            emailAnalysisMsg: '',
+            timeLeft: 0
+        };
+
+
+        let timerInterval = null;
+
+
+        const disposableDomains = [
+            'tempmail.com','temp-mail.org','guerrillamail.com','10minutemail.com','mailinator.com',
+            'yopmail.com','throwawaymail.com','fakeinbox.com','trashmail.com','getnada.com',
+            'maildrop.cc','dispostable.com','sharklasers.com','guerrillamailblock.com'
+        ];
+        const trustedProviders = [
+            'gmail.com','googlemail.com','hotmail.com','hotmail.es','hotmail.co.uk','outlook.com',
+            'outlook.es','live.com','msn.com','yahoo.com','yahoo.es','icloud.com','me.com',
+            'protonmail.com','proton.me','aol.com','zoho.com','gmx.com','mail.com'
+        ];
+
+
+        function isValidEmailFormat(email) {
+            const re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+            return re.test(email) && email.length <= 254 && !email.includes('..') && !email.startsWith('.') && !email.endsWith('.');
+        }
+
+
+        function analyzeEmail(email) {
+            const lower = email.toLowerCase().trim();
+            if (!lower) return { valid: false, msg: 'Escribe un correo electrónico.' };
+            if (!isValidEmailFormat(lower)) return { valid: false, msg: 'Formato inválido. Revisa que tenga @ y un dominio correcto.' };
+            const domain = lower.split('@')[1];
+            if (!domain || domain.length < 3) return { valid: false, msg: 'Dominio incompleto o inválido.' };
+            if (disposableDomains.some(d => domain === d || domain.endsWith('.' + d))) {
+                return { valid: false, msg: 'Correo temporal / desechable detectado. Usa un correo real.' };
+            }
+            const isTrusted = trustedProviders.some(p => domain === p);
+            const hasGoodTld = /\.(com|es|net|org|edu|gov|mx|ar|co|uk|de|fr|it|pt|br|cl)$/i.test(domain);
+            if (!hasGoodTld && !isTrusted) {
+                return { valid: false, msg: 'Dominio poco común o sospechoso. Usa Gmail, Hotmail/Outlook, Yahoo, etc.' };
+            }
+            let analysisText = '';
+            if (domain.includes('hotmail') || domain.includes('outlook') || domain.includes('live.com') || domain.includes('msn.com')) {
+                analysisText = 'Análisis: proveedor Microsoft (Hotmail/Outlook) detectado · formato correcto · dominio legítimo';
+            } else if (domain.includes('gmail') || domain.includes('googlemail')) {
+                analysisText = 'Análisis: proveedor Google (Gmail) detectado · formato correcto · dominio legítimo';
+            } else if (isTrusted) {
+                analysisText = 'Análisis: proveedor conocido · formato correcto · dominio legítimo';
+            } else {
+                analysisText = 'Análisis: formato válido · dominio con TLD estándar · no se detectaron patrones de correo temporal';
+            }
+            return { valid: true, msg: analysisText };
+        }
+
+
+        function showSection(section, btn) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            stopTimer();
+            const app = document.getElementById('app');
+            if (section === 'pdf') {
+                app.innerHTML = `<div class="animate-fade-in"><h2 class="text-xl font-bold mb-4">📄 Pizarra Virtual</h2><div class="iframe-container"><iframe src="${DRIVE_PDF_URL}" width="100%" height="100%" allow="autoplay"></iframe></div></div>`;
+            } else if (section === 'video') {
+                app.innerHTML = `<div class="animate-fade-in"><h2 class="text-xl font-bold mb-4">🎥 Video Clase</h2><div class="iframe-container"><iframe src="${DRIVE_VIDEO_URL}" width="100%" height="100%" allow="autoplay"></iframe></div></div>`;
+            }
+        }
+
+
+        function prepQuiz(mode, btn) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            stopTimer();
+            state = {
+                currentMode: mode,
+                view: 'quiz_home',
+                studentName: '',
+                studentEmail: '',
+                activeQuestions: [],
+                currentQuestion: 0,
+                score: 0,
+                selectedAnswer: null,
+                isAnswerCorrect: null,
+                emailStatus: null,
+                emailAnalysis: null,
+                emailAnalysisMsg: '',
+                timeLeft: 0
+            };
+            render();
+        }
+
+
+        function startQuiz() {
+            if (state.currentMode === 'deber') {
+                // Deber: 50 preguntas en orden
+                state.activeQuestions = [...quizData];
+            } else if (state.currentMode === 'evaluacion') {
+                // Repaso: 20 preguntas aleatorias
+                state.activeQuestions = [...quizData]
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 20);
+            } else if (state.currentMode === 'extra') {
+                // Evaluación: 16 preguntas en orden
+                state.activeQuestions = [...quizDataExtra];
+            }
+            state.view = 'name_input';
+            state.emailAnalysis = null;
+            state.emailAnalysisMsg = '';
+            render();
+        }
+
+
+        function onEmailInput() {
+            const e = document.getElementById('email-in');
+            if (!e) return;
+            const val = e.value.trim();
+            if (val.length < 5) {
+                state.emailAnalysis = null;
+                state.emailAnalysisMsg = '';
+                updateEmailUI();
+                return;
+            }
+            state.emailAnalysis = 'checking';
+            state.emailAnalysisMsg = 'Analizando correo…';
+            updateEmailUI();
+            clearTimeout(window._emailCheckTimer);
+            window._emailCheckTimer = setTimeout(() => {
+                const result = analyzeEmail(val);
+                state.emailAnalysis = result.valid ? 'valid' : 'invalid';
+                state.emailAnalysisMsg = result.msg;
+                updateEmailUI();
+            }, 600);
+        }
+
+
+        function updateEmailUI() {
+            const feedback = document.getElementById('email-feedback');
+            const analysis = document.getElementById('email-analysis');
+            const input = document.getElementById('email-in');
+            if (!feedback || !analysis || !input) return;
+            if (state.emailAnalysis === 'checking') {
+                feedback.innerHTML = `<span class="text-slate-500 text-sm flex items-center gap-2"><span class="dot-pulse">●</span> Verificando…</span>`;
+                analysis.innerHTML = `<p class="text-xs text-slate-400 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-red-400', 'border-emerald-400');
+                input.classList.add('border-slate-300');
+            } else if (state.emailAnalysis === 'invalid') {
+                feedback.innerHTML = `<span class="text-red-600 text-sm font-semibold">✗ Correo no válido o inexistente</span>`;
+                analysis.innerHTML = `<p class="text-xs text-red-500/80 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-emerald-400', 'border-slate-300');
+                input.classList.add('border-red-400');
+            } else if (state.emailAnalysis === 'valid') {
+                feedback.innerHTML = `<span class="text-emerald-600 text-sm font-semibold">✓ Correo aceptado</span>`;
+                analysis.innerHTML = `<p class="text-xs text-emerald-600/80 mt-1">${state.emailAnalysisMsg}</p>`;
+                input.classList.remove('border-red-400', 'border-slate-300');
+                input.classList.add('border-emerald-400');
+            } else {
+                feedback.innerHTML = '';
+                analysis.innerHTML = '';
+                input.classList.remove('border-red-400', 'border-emerald-400');
+                input.classList.add('border-slate-300');
+            }
+        }
+
+
+        function validaDatos() {
+            const n = document.getElementById('name-in').value.trim();
+            const e = document.getElementById('email-in').value.trim();
+            if (n.length <= 2) {
+                alert("Ingresa nombre completo (mínimo 3 caracteres).");
+                return;
+            }
+            const result = analyzeEmail(e);
+            state.emailAnalysis = result.valid ? 'valid' : 'invalid';
+            state.emailAnalysisMsg = result.msg;
+            updateEmailUI();
+            if (!result.valid) return;
+            state.studentName = n;
+            state.studentEmail = e;
+            state.view = 'playing';
+            if (state.currentMode === 'extra') {
+                startTimer();
+            }
+            render();
+        }
+
+
+        // ---------- TEMPORIZADOR (solo Evaluación / extra) ----------
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+
+        function getTimerPhaseClass(remaining) {
+            for (const phase of EVAL_TIMER_PHASES) {
+                if (remaining >= phase.minSeconds) {
+                    return phase.colorClass;
+                }
+            }
+            return EVAL_TIMER_PHASES[EVAL_TIMER_PHASES.length - 1].colorClass;
+        }
+
+
+        function startTimer() {
+            stopTimer();
+            state.timeLeft = EVAL_TIMER_SECONDS;
+            timerInterval = setInterval(() => {
+                state.timeLeft--;
+                if (state.timeLeft <= 0) {
+                    state.timeLeft = 0;
+                    stopTimer();
+                    state.view = 'results';
+                    render();
+                    enviarCorreo();
+                    return;
+                }
+                const timerEl = document.getElementById('eval-timer');
+                if (timerEl) {
+                    timerEl.textContent = formatTime(state.timeLeft);
+                    timerEl.className = `px-3 py-1.5 rounded-xl border-2 font-black text-sm tabular-nums ${getTimerPhaseClass(state.timeLeft)}`;
+                }
+            }, 1000);
+        }
+
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+
+        // ---------- LÓGICA SINGLE + MULTI ----------
+        function isMultiQuestion(q) {
+            return q.multi === 'ON';
+        }
+
+
+        function arraysEqual(a, b) {
+            if (!Array.isArray(a) || !Array.isArray(b)) return false;
+            if (a.length !== b.length) return false;
+            const sa = [...a].sort();
+            const sb = [...b].sort();
+            return sa.every((v, i) => v === sb[i]);
+        }
+
+
+        function handleAnswer(idx) {
+            if (state.isAnswerCorrect !== null) return;
+            const currentQ = state.activeQuestions[state.currentQuestion];
+            const option = currentQ.options[idx];
+
+
+            if (isMultiQuestion(currentQ)) {
+                let selected = Array.isArray(state.selectedAnswer) ? [...state.selectedAnswer] : [];
+                const pos = selected.indexOf(option);
+                if (pos > -1) {
+                    selected.splice(pos, 1);
+                } else {
+                    if (selected.length >= currentQ.maxSelect) return;
+                    selected.push(option);
+                }
+                state.selectedAnswer = selected;
+                render();
+            } else {
+                if (state.selectedAnswer !== null) return;
+                state.selectedAnswer = option;
+                state.isAnswerCorrect = (option === currentQ.answer);
+                if (state.isAnswerCorrect) state.score++;
+                render();
+                if (state.isAnswerCorrect) {
+                    setTimeout(() => nextQuestion(), 1000);
+                }
+            }
+        }
+
+
+        function checkMultiAnswer() {
+            if (state.isAnswerCorrect !== null) return;
+            const currentQ = state.activeQuestions[state.currentQuestion];
+            if (!isMultiQuestion(currentQ)) return;
+            const selected = Array.isArray(state.selectedAnswer) ? state.selectedAnswer : [];
+            if (selected.length === 0) return;
+            const correctAnswers = Array.isArray(currentQ.answer) ? currentQ.answer : [currentQ.answer];
+            state.isAnswerCorrect = arraysEqual(selected, correctAnswers);
+            if (state.isAnswerCorrect) state.score++;
+            render();
+            if (state.isAnswerCorrect) {
+                setTimeout(() => nextQuestion(), 1000);
+            }
+        }
+
+
+        function nextQuestion() {
+            if (state.currentQuestion + 1 < state.activeQuestions.length) {
+                state.currentQuestion++;
+                state.selectedAnswer = null;
+                state.isAnswerCorrect = null;
+                render();
+            } else {
+                stopTimer();
+                state.view = 'results';
+                render();
+                enviarCorreo();
+            }
+        }
+
+
+        function enviarCorreo() {
+            if (!state.studentEmail) return;
+            state.emailStatus = 'sending';
+            render();
+            const scorePerc = Math.round((state.score / state.activeQuestions.length) * 100);
+            const totalQ = state.activeQuestions.length;
+            let imageUrl = '';
+            let mensaje = '';
+            if (scorePerc >= 90) {
+                imageUrl = 'https://img.icons8.com/color/128/medal2.png';
+                mensaje = `¡Excelente trabajo, ${state.studentName}! Obtuviste un resultado sobresaliente.`;
+            } else if (scorePerc >= 70) {
+                imageUrl = 'https://img.icons8.com/color/128/diploma.png';
+                mensaje = `¡Muy bien, ${state.studentName}! Has aprobado con un buen resultado.`;
+            } else if (scorePerc >= 50) {
+                imageUrl = 'https://img.icons8.com/color/128/ok.png';
+                mensaje = `Buen esfuerzo, ${state.studentName}. Sigue practicando para mejorar.`;
+            } else {
+                imageUrl = 'https://img.icons8.com/color/128/error.png';
+                mensaje = `Ánimo, ${state.studentName}. Revisa el material y vuelve a intentarlo.`;
+            }
+            const params = {
+                to_name: state.studentName,
+                to_email: state.studentEmail,
+                score: scorePerc,
+                correct_answers: state.score,
+                total_questions: totalQ,
+                mode_name: state.currentMode.toUpperCase(),
+                image_url: imageUrl,
+                mensaje: mensaje,
+                fecha: new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
+                })
+            };
+            emailjs.send("service_dhvsi72", "template_cy74x9h", params)
+                .then(() => {
+                    state.emailStatus = 'success';
+                    render();
+                })
+                .catch((err) => {
+                    console.error('Error EmailJS:', err);
+                    state.emailStatus = 'error';
+                    render();
+                });
+        }
+
+
+        function render() {
+            const app = document.getElementById('app');
+            
+            let modeTitle = '';
+            let modeDesc = '';
+            if (state.currentMode === 'deber') {
+                modeTitle = '📚 Deber';
+                modeDesc = 'Resuelve las 50 preguntas del banco en orden.';
+            } else if (state.currentMode === 'evaluacion') {
+                modeTitle = '📝 Repaso';
+                modeDesc = 'Prueba de 20 preguntas seleccionadas al azar.';
+            } else if (state.currentMode === 'extra') {
+                modeTitle = '📊 Evaluación';
+                modeDesc = 'Resuelve las 16 preguntas de la Evaluación (tiempo límite: 16 min).';
+            }
+            
+            if (state.view === 'quiz_home') {
+                app.innerHTML = `
+                <div class="text-center py-16 animate-fade-in bg-white rounded-[3rem] shadow-xl border">
+                    <h2 class="text-4xl font-black text-slate-800 mb-2">${modeTitle}</h2>
+                    <p class="text-slate-500 mb-8 text-lg">${modeDesc}</p>
+                    <button onclick="startQuiz()" class="bg-emerald-600 text-white px-12 py-5 rounded-2xl font-black text-xl hover:bg-emerald-700 transition-all">
+                        INICIAR
+                    </button>
+                </div>`;
+            }
+
+
+            if (state.view === 'name_input') {
+                app.innerHTML = `
+                <div class="max-w-md mx-auto bg-white p-10 rounded-[2.5rem] shadow-2xl animate-fade-in">
+                    <h2 class="text-2xl font-black mb-6 text-center">Registro de Estudiante</h2>
+                    <input id="name-in" type="text" placeholder="Nombre y Apellido completo" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl mb-4 focus:border-emerald-500 outline-none">
+                    
+                    <div class="relative mb-1">
+                        <input id="email-in" type="email" placeholder="Correo para recibir nota (Gmail, Hotmail…)" 
+                               class="w-full p-4 bg-slate-50 border border-slate-300 rounded-xl focus:border-emerald-500 outline-none transition-colors"
+                               oninput="onEmailInput()" onblur="onEmailInput()">
+                    </div>
+                    
+                    <div id="email-feedback" class="min-h-[22px] mb-1"></div>
+                    <div id="email-analysis" class="mb-5"></div>
+                    
+                    <button onclick="validaDatos()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold hover:bg-slate-800 transition-all">
+                        ENTRAR AL TEST
+                    </button>
+                    <p class="text-center text-[11px] text-slate-400 mt-4">Se verifica formato y se descartan correos temporales. No se envía nada hasta terminar el test.</p>
+                </div>`;
+                setTimeout(updateEmailUI, 50);
+            }
+
+
+            if (state.view === 'playing') {
+                const q = state.activeQuestions[state.currentQuestion];
+                const progress = ((state.currentQuestion + 1) / state.activeQuestions.length) * 100;
+                const multi = isMultiQuestion(q);
+                const selected = multi
+                    ? (Array.isArray(state.selectedAnswer) ? state.selectedAnswer : [])
+                    : (state.selectedAnswer ? [state.selectedAnswer] : []);
+
+
+                const multiHint = multi
+                    ? `<p class="text-sm text-sky-600 font-semibold mb-4">
+                         Selección múltiple · elige ${q.maxSelect} respuesta${q.maxSelect > 1 ? 's' : ''}
+                         ${selected.length > 0 ? `(${selected.length}/${q.maxSelect})` : ''}
+                       </p>`
+                    : '';
+
+
+                // Timer solo en Evaluación (extra)
+                const timerHtml = (state.currentMode === 'extra')
+                    ? `<div id="eval-timer" class="px-3 py-1.5 rounded-xl border-2 font-black text-sm tabular-nums ${getTimerPhaseClass(state.timeLeft)}">
+                           ${formatTime(state.timeLeft)}
+                       </div>`
+                    : '';
+
+
+                app.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="flex justify-between items-center mb-6 px-4 gap-4">
+                        <span class="font-black text-emerald-600">${state.currentQuestion + 1} / ${state.activeQuestions.length}</span>
+                        <div class="flex-1 max-w-xs bg-slate-200 h-2 rounded-full overflow-hidden">
+                            <div class="bg-emerald-500 h-full transition-all" style="width:${progress}%"></div>
+                        </div>
+                        ${timerHtml}
+                    </div>
+                    <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl border">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2 leading-tight">${q.question}</h2>
+                        ${multiHint}
+                        <div class="grid gap-3">
+                            ${q.options.map((opt, idx) => {
+                                let style = "border-slate-100 bg-slate-50 hover:border-emerald-200";
+                                const isSelected = selected.includes(opt);
+
+
+                                if (state.isAnswerCorrect !== null) {
+                                    if (multi) {
+                                        const correctSet = Array.isArray(q.answer) ? q.answer : [q.answer];
+                                        if (correctSet.includes(opt) && isSelected) {
+                                            style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                        } else if (isSelected && !correctSet.includes(opt)) {
+                                            style = "border-red-500 bg-red-100 text-red-800";
+                                        } else if (correctSet.includes(opt) && !isSelected) {
+                                            style = "border-emerald-300 bg-emerald-50 text-emerald-700";
+                                        }
+                                    } else {
+                                        if (opt === q.answer) {
+                                            style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                        } else if (isSelected) {
+                                            style = "border-red-500 bg-red-100 text-red-800";
+                                        }
+                                    }
+                                } else if (isSelected) {
+                                    if (multi) {
+                                        style = "border-sky-400 bg-sky-100 text-sky-800";
+                                    } else {
+                                        style = "border-emerald-500 bg-emerald-100 text-emerald-800";
+                                    }
+                                }
+
+
+                                return `<button onclick="handleAnswer(${idx})" 
+                                            class="p-5 text-left border-2 rounded-xl font-bold transition-all ${style}">
+                                            ${opt}
+                                        </button>`;
+                            }).join('')}
+                        </div>
+
+
+                        ${multi && state.isAnswerCorrect === null ? `
+                            <button onclick="checkMultiAnswer()" 
+                                class="mt-6 w-full py-4 rounded-xl font-bold transition-all
+                                ${selected.length === q.maxSelect 
+                                    ? 'bg-sky-600 text-white hover:bg-sky-700' 
+                                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'}"
+                                ${selected.length !== q.maxSelect ? 'disabled' : ''}>
+                                Comprobar respuesta (${selected.length}/${q.maxSelect})
+                            </button>
+                        ` : ''}
+
+
+                        ${state.selectedAnswer !== null && state.isAnswerCorrect === false ? `
+                            <div class="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl">
+                                <p class="font-bold text-amber-800 mb-2">Explicación:</p>
+                                <p class="text-slate-700">${q.explanation}</p>
+                            </div>
+                            <button onclick="nextQuestion()" class="mt-6 w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all">
+                                Siguiente pregunta
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>`;
+            }
+
+
+            if (state.view === 'results') {
+                const scorePerc = Math.round((state.score / state.activeQuestions.length) * 100);
+                app.innerHTML = `
+                <div class="max-w-md mx-auto text-center animate-fade-in bg-white p-12 rounded-[3rem] shadow-2xl">
+                    <h2 class="text-2xl font-black mb-2">${state.studentName}</h2>
+                    <p class="text-slate-400 uppercase text-xs font-bold mb-6">${state.currentMode}</p>
+                    <div class="text-7xl font-black text-emerald-600 mb-4">${scorePerc}%</div>
+                    <p class="text-lg font-bold text-slate-700 mb-10">${state.score} / ${state.activeQuestions.length} correctas</p>
+                    <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-xl font-bold">VOLVER AL INICIO</button> 
+                    <p class="mt-6 text-xs font-bold text-slate-400"> 
+                        ${state.emailStatus === 'success' ? '✅ Nota e imagen enviadas al correo' : 
+                          state.emailStatus === 'error' ? '⚠️ Error al enviar nota e imagen' : 
+                          '⏳ Enviando nota e imagen al correo...'}
+                    </p>
+                </div>`;
+            }
+        }
+        render();
+    </script>
+</body>
+</html>
